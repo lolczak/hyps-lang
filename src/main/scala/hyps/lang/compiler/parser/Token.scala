@@ -1,3 +1,5 @@
 package hyps.lang.compiler.parser
 
-case class Token(`type`: Int, offset: Int, text: String)
+import hyps.lang.compiler.Position
+
+case class Token(`type`: Int, lexeme: String, position: Position)
