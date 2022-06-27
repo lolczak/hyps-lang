@@ -46,14 +46,12 @@ abstract class BacktrackingParser(input: Lexer) {
   }
 
   /** Marks the current position. The marker is used to backtrack to this position. */
-  @unused
   private def mark(): Int = {
     markers.add(lookaheadOffset)
     lookaheadOffset
   }
 
   /** Releases the last marked position. */
-  @unused
   private def release(): Unit = {
     val marker = markers.get(markers.size() - 1)
     markers.remove(markers.size() - 1)
@@ -74,7 +72,6 @@ abstract class BacktrackingParser(input: Lexer) {
   }
 
   /** Matches the next token. Upon success, return void. Otherwise, throws a compiler exception. */
-  @unused
   protected def matchToken(tokenType: Int): Unit = {
     if (peek(1).`type` == tokenType) {
       consume()
