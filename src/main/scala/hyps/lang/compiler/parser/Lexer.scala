@@ -156,8 +156,8 @@ class Lexer(sourceCode: String) {
       consume()
     } while (lookaheadChar.isLetter || lookaheadChar.isDigit || lookaheadChar == '_')
     buffer.toString() match {
-      case keyword if Keywords.contains(keyword)       => Token(Keywords(keyword), keyword, startPosition)
-      case identifier => Token(IDENTIFIER, identifier, startPosition)
+      case keyword if Keywords.contains(keyword) => Token(Keywords(keyword), keyword, startPosition)
+      case identifier                            => Token(IDENTIFIER, identifier, startPosition)
     }
   }
 

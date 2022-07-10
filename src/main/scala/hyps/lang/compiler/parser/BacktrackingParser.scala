@@ -3,7 +3,6 @@ package hyps.lang.compiler.parser
 import hyps.lang.compiler.CompilerError
 
 import java.util
-import scala.annotation.unused
 
 /** An abstract backtracking parser. The inheriting classes overcome lookahead issues by allowing arbitrary lookahead.
   * This parses uses backtracking strategy for a parsing decision. It speculatively attempt the alternatives in order
@@ -22,27 +21,27 @@ abstract class BacktrackingParser(input: Lexer) {
   private val lookaheadBuffer = new util.ArrayList[Token]()
 
   /** Appends `count` number of new tokens to the `lookaheadBuffer`. */
-  private def fill(count: Int): Unit = {
+  private def fill(count: Int): Unit =
     (1 to count).foreach(_ => lookaheadBuffer.add(input.nextToken()))
-  }
 
   /** Looks `count` tokens ahead. It makes sure that the `lookaheadBuffer` has valid tokens from index `lookaheadOffset`
     * to `lookaheadOffset + count - 1`. */
-  private def lookAhead(count: Int): Unit = {
+  private def lookAhead(count: Int): Unit =
     if (lookaheadOffset + count - 1 > lookaheadBuffer.size() - 1) {
       val n = (lookaheadOffset + count - 1) - (lookaheadBuffer.size() - 1)
       fill(n)
     }
-  }
 
   /** Consumes the first lookahead token and advances one token forward. */
-  protected def consume(): Unit = {
+  protected def consume(): Token = {
+    val token = peek(1)
     lookaheadOffset += 1
     if (lookaheadOffset == lookaheadBuffer.size() && !isSpeculating()) {
       lookaheadOffset = 0
       lookaheadBuffer.clear()
     }
     lookAhead(1)
+    token
   }
 
   /** Marks the current position. The marker is used to backtrack to this position. */
@@ -59,9 +58,8 @@ abstract class BacktrackingParser(input: Lexer) {
   }
 
   /** Changes the lookahead offset. */
-  protected def seek(idx: Int): Unit = {
+  protected def seek(idx: Int): Unit =
     lookaheadOffset = idx
-  }
 
   private def isSpeculating(): Boolean = !markers.isEmpty
 
@@ -72,12 +70,16 @@ abstract class BacktrackingParser(input: Lexer) {
   }
 
   /** Matches the next token. Upon success, return void. Otherwise, throws a compiler exception. */
-  protected def matchToken(tokenType: Int): Unit = {
-    if (peek(1).`type` == tokenType) {
+  protected def matchToken(tokenType: Int): Unit =
+    if (peek(1).kind == tokenType) {
       consume()
     } else {
       throw CompilerError(peek(1).position, s"Cannot match token $tokenType")
     }
+
+  protected def check(tokenTypes: Int*): Boolean = {
+    val next = peek(1)
+    tokenTypes.contains(next.kind)
   }
 
   /**
@@ -86,12 +88,11 @@ abstract class BacktrackingParser(input: Lexer) {
     * @param rule the non-terminal rule that is attempted to match
     * @return the matching result
     */
-  protected def speculate(rule: => Nothing): Boolean = {
+  protected def speculate[A](rule: () => A): Boolean = {
     mark()
     try {
-      rule
-    }
-    catch {
+      rule()
+    } catch {
       case _: CompilerError => return false
     } finally {
       release()
