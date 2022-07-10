@@ -7,7 +7,7 @@ object Compiler {
 
   def compile(input: String): AST = {
     val parser = new Parser(input)
-    parser.ast()
+    parser.parse()
   }
 
 }

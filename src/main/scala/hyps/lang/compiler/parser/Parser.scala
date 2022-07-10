@@ -3,7 +3,7 @@ import hyps.lang.compiler.ast.AST
 
 class Parser(input: String) extends BacktrackingParser(new Lexer(input)) with ExprParser {
 
-  def ast(): AST = {
+  def parse(): AST = {
     val ast = expression()
     matchToken(Tokens.EOF)
     ast
