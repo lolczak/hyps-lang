@@ -3,6 +3,18 @@ package hyps.lang.compiler.parser
 import hyps.lang.compiler.CompilerError
 import hyps.lang.compiler.ast.Expr
 
+/**
+  * Hyps expression parser.
+  * The precedence rules going from lowest to highest:
+  * {{{
+  *   | Name       | Operator  | Associates |
+  *   | Equality   | == !=     | Left       |
+  *   | Comparison | > < >= <= | Left       |
+  *   | Term       | + -       | Left       |
+  *   | Factor     | * /       | Left       |
+  *   | Unary      | ! -       | Right      |
+  * }}}
+  */
 trait ExprParser { this: BacktrackingParser =>
 
   protected def expression(): Expr = equality()
