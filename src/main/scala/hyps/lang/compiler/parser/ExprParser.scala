@@ -146,8 +146,8 @@ trait ExprParser { this: BacktrackingParser =>
         case Tokens.TRUE   => Expr.True
         case Tokens.FALSE  => Expr.False
         case Tokens.NIL    => Expr.Nil
-        case Tokens.NUMBER => Expr.Number(next.lexeme)
-        case Tokens.STRING => Expr.StringLit(next.lexeme)
+        case Tokens.NUMBER => Expr.NumberLiteral(next.lexeme)
+        case Tokens.STRING => Expr.StringLiteral(next.lexeme)
         case Tokens.LEFT_PAREN =>
           consume()
           val innerExpr = expression()

@@ -1,3 +1,7 @@
 package hyps.lang.compiler.ast
 
-trait AST 
+trait AST {
+
+  def accept[A](visitor: AstVisitor[A]): A
+
+}

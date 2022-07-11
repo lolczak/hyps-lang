@@ -1,5 +1,6 @@
 package hyps.lang
 
+import hyps.lang.compiler.interpreter.RuntimeError
 import hyps.lang.compiler.{Compiler, CompilerError}
 
 import java.io.{BufferedReader, InputStreamReader}
@@ -26,11 +27,14 @@ object Hyps {
 
   private def run(source: String): Unit =
     try {
-      val ast = Compiler.compile(source)
-      println(ast)
+      val value = Compiler.compile(source)
+      println(s"= $value")
     } catch {
       case CompilerError(position, msg) =>
-        System.err.println(s"[${position.line}:${position.column}] $msg")
+        println(s"[${position.line}:${position.column}] $msg")
+
+      case RuntimeError(msg) =>
+        println(s"Runtime error: $msg")
 
       case NonFatal(ex) => ex.printStackTrace()
     }
