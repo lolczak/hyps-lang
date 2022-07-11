@@ -140,6 +140,7 @@ class Lexer(sourceCode: String) {
   private def string(): Token = {
     val startPosition = position
     val buffer        = new StringBuilder()
+    consume()
     do {
       buffer.append(lookaheadChar)
       consume()
