@@ -9,5 +9,6 @@ object RuntimeValue {
   case class DecimalValue(value: Long)    extends RuntimeValue
   case object NilValue                    extends RuntimeValue
   case object UndefinedValue              extends RuntimeValue
+  case object UnitValue                   extends RuntimeValue
 
 }

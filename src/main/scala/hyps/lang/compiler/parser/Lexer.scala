@@ -221,7 +221,8 @@ object Lexer {
       "true"   -> TRUE,
       "var"    -> VAR,
       "let"    -> LET,
-      "while"  -> WHILE
+      "while"  -> WHILE,
+      "print"  -> PRINT
     )
 
 }

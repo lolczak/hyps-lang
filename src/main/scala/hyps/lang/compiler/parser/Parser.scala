@@ -1,12 +1,19 @@
 package hyps.lang.compiler.parser
-import hyps.lang.compiler.ast.AST
+import hyps.lang.compiler.ast.Statement
 
-class Parser(input: String) extends BacktrackingParser(new Lexer(input)) with ExprParser {
+import scala.collection.mutable.ListBuffer
 
-  def parse(): AST = {
-    val ast = expression()
-    matchToken(Tokens.EOF)
-    ast
+class Parser(input: String) extends BacktrackingParser(new Lexer(input)) with ExprParser with StatementParser {
+
+  def parse(): List[Statement] =
+    program()
+
+  protected def program(): List[Statement] = {
+    val buffer = ListBuffer.empty[Statement]
+    while (!isEnd) {
+      buffer.append(statement())
+    }
+    buffer.toList
   }
 
 }

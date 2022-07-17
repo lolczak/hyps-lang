@@ -26,4 +26,8 @@ trait AstVisitor[A] {
 
   def visitEquality(expr: Expr.Equality): A
 
+  def visitExpressionStatement(statement: Statement.ExpressionStatement): A
+
+  def visitPrintStatement(statement: Statement.PrintStatement): A
+
 }

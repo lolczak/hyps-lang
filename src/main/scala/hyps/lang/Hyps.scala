@@ -15,13 +15,21 @@ object Hyps {
     val input  = new InputStreamReader(System.in)
     val reader = new BufferedReader(input)
 
+    var source = ""
     while (true) {
       print("> ")
       val line = reader.readLine()
       if (line == null) {
         System.exit(0)
       }
-      run(line)
+      if (line.endsWith("\\")) {
+        val stripped = line.substring(0, line.length - 2)
+        source = s"$source\n$stripped"
+      } else {
+        source = s"$source\n$line"
+        run(line)
+        source = ""
+      }
     }
   }
 

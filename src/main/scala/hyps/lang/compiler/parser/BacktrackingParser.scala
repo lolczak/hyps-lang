@@ -70,11 +70,14 @@ abstract class BacktrackingParser(input: Lexer) {
   }
 
   /** Matches the next token. Upon success, return void. Otherwise, throws a compiler exception. */
-  protected def matchToken(tokenType: Int): Unit =
+  protected def matchToken(tokenType: Int, maybeErrorMsg: Option[String] = None): Unit =
     if (peek(1).kind == tokenType) {
       consume()
     } else {
-      throw CompilerError(peek(1).position, s"Cannot match token $tokenType")
+      maybeErrorMsg match {
+        case None               => throw CompilerError(peek(1).position, s"Cannot match token $tokenType")
+        case Some(errorMessage) => throw CompilerError(peek(1).position, errorMessage)
+      }
     }
 
   protected def check(tokenTypes: Int*): Boolean = {
@@ -99,5 +102,13 @@ abstract class BacktrackingParser(input: Lexer) {
     }
     true
   }
+
+  protected def isEnd: Boolean =
+    if (check(Tokens.EOF)) {
+      matchToken(Tokens.EOF)
+      true
+    } else {
+      false
+    }
 
 }

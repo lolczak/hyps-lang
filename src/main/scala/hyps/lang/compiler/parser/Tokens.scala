@@ -53,5 +53,6 @@ object Tokens {
   val VAR    = 413
   val LET    = 414
   val WHILE  = 415
+  val PRINT  = 416
 
 }

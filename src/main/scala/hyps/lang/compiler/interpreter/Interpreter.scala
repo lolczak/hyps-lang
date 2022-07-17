@@ -1,17 +1,17 @@
 package hyps.lang.compiler.interpreter
 
 import hyps.lang.compiler.ast.Expr._
-import hyps.lang.compiler.ast.{AST, AstVisitor, Expr}
+import hyps.lang.compiler.ast.{AstVisitor, Expr, Statement}
 import hyps.lang.compiler.interpreter.RuntimeValue._
 
-class Interpreter(program: AST) extends AstVisitor[RuntimeValue] {
+class Interpreter(program: List[Statement]) extends AstVisitor[RuntimeValue] {
 
   def interpret(): String = {
-    val result =
-      program match {
-        case expr: Expr => evaluate(expr)
-      }
-    stringify(result)
+    var lastResult: RuntimeValue = RuntimeValue.UndefinedValue
+    for (statement <- program) {
+      lastResult = execute(statement)
+    }
+    stringify(lastResult)
   }
 
   protected def stringify(value: RuntimeValue): String =
@@ -21,7 +21,11 @@ class Interpreter(program: AST) extends AstVisitor[RuntimeValue] {
       case BooleanValue(value)              => s"$value"
       case RuntimeValue.DecimalValue(value) => s"$value"
       case RuntimeValue.StringValue(value)  => value
+      case RuntimeValue.UnitValue           => "()"
     }
+
+  protected def execute(statement: Statement): RuntimeValue =
+    statement.accept(this)
 
   protected def evaluate(expr: Expr): RuntimeValue =
     expr.accept(this)
@@ -177,4 +181,14 @@ class Interpreter(program: AST) extends AstVisitor[RuntimeValue] {
         throw RuntimeError(s"Cannot compare mismatching types: [$x, ${y}]")
     }
   }
+
+  override def visitExpressionStatement(statement: Statement.ExpressionStatement): RuntimeValue =
+    evaluate(statement.expr)
+
+  override def visitPrintStatement(statement: Statement.PrintStatement): RuntimeValue = {
+    val argument = evaluate(statement.expr)
+    println(stringify(argument))
+    RuntimeValue.UnitValue
+  }
+
 }
