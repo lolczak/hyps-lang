@@ -1,4 +1,4 @@
-package hyps.lang.compiler.parser
+package hyps.lang.compiler.syntax.parser
 
 object Tokens {
 

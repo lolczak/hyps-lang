@@ -1,7 +1,7 @@
-package hyps.lang.compiler.parser
+package hyps.lang.compiler.syntax.parser
 
-import hyps.lang.compiler.parser.Lexer.{EOF, Keywords}
-import hyps.lang.compiler.parser.Tokens._
+import Lexer.{EOF, Keywords}
+import Tokens._
 import hyps.lang.compiler.{CompilerError, Position}
 
 import scala.annotation.switch

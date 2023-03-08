@@ -1,7 +1,7 @@
 package hyps.lang.compiler
 
 import hyps.lang.compiler.interpreter.Interpreter
-import hyps.lang.compiler.parser.Parser
+import hyps.lang.compiler.syntax.parser.Parser
 
 object Compiler {
 
