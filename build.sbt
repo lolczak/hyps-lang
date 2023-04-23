@@ -1,5 +1,4 @@
-
-ThisBuild / scalaVersion := "2.13.3"
+ThisBuild / scalaVersion := "2.13.10"
 ThisBuild / version := "0.1.0"
 ThisBuild / organization := "hyps-lang"
 
@@ -40,14 +39,13 @@ scalacOptions in ThisBuild ++= Seq(
   "-Ywarn-unused:locals", // Warn if a local definition is unused.
   "-Ywarn-unused:patvars", // Warn if a variable bound in a pattern is unused.
   "-Ywarn-unused:privates", // Warn if a private member is unused.
-  "-Ywarn-unused:params", // Warn if a value parameter is unused.
+//  "-Ywarn-unused:params", // Warn if a value parameter is unused.
   "-Xfatal-warnings" // Make warnings fatal so they don't make it onto main (use @nowarn for local suppression)
 )
 
 // ============================================================================
 // === Global Project =========================================================
 // ============================================================================
-
 
 // === Circe ==================================================================
 
@@ -60,50 +58,48 @@ val circe = Seq("circe-core", "circe-generic", "circe-parser", "circe-literal")
 
 // === Other ==================================================================
 
-val logbackVersion = "1.2.3"
-val scalaLoggingVersion = "3.9.2"
-val zioVersion = "1.0.3"
-val scalaGuiceVersion = "4.2.11"
-val scalaTestVersion = "3.2.2"
-val commonsIoVersion = "2.6"
-val commonsLangVersion = "3.5"
-val enumeratumVersion = "1.5.15"
-val enumeratumCirceVersion = "1.5.22"
-val pureconfigVersion = "0.12.2"
-val typesafeConfigVersion = "1.4.0"
-val shapelessVersion = "2.3.3"
-val kindProjectorVersion = "0.11.0"
-val mockitoVersion = "1.10.19"
-val auth0JwksVersion = "0.14.1"
-val auth0JwtVersion = "3.11.0"
-val wiremockVersion = "2.27.2"
-val circeYamlVersion = "0.13.1"
-val bumpVersion = "0.1.3"
-val curatorVersion = "5.1.0"
-val bouncycastleVersion = "1.68"
-val commonsLang3Version = "3.12.0"
-val wireMockVersion = "2.27.2"
-val stripeVersion = "20.62.0"
-val engineScalatestVersion = "3.3.0-SNAP2"
-val parserCombinatorsVersion = "2.1.0"
+val logbackVersion           = "1.2.3"
+val scalaLoggingVersion      = "3.9.2"
+val zioVersion               = "1.0.3"
+val scalaGuiceVersion        = "4.2.11"
+val scalaTestVersion         = "3.2.2"
+val commonsIoVersion         = "2.6"
+val commonsLangVersion       = "3.5"
+val enumeratumVersion        = "1.5.15"
+val enumeratumCirceVersion   = "1.5.22"
+val pureconfigVersion        = "0.12.2"
+val typesafeConfigVersion    = "1.4.0"
+val shapelessVersion         = "2.3.3"
+val kindProjectorVersion     = "0.11.0"
+val mockitoVersion           = "1.10.19"
+val auth0JwksVersion         = "0.14.1"
+val auth0JwtVersion          = "3.11.0"
+val wiremockVersion          = "2.27.2"
+val circeYamlVersion         = "0.13.1"
+val bumpVersion              = "0.1.3"
+val curatorVersion           = "5.1.0"
+val bouncycastleVersion      = "1.68"
+val commonsLang3Version      = "3.12.0"
+val wireMockVersion          = "2.27.2"
+val stripeVersion            = "20.62.0"
+val engineScalatestVersion   = "3.3.0-SNAP2"
 
 lazy val `hyps-lang` = (project in file("."))
   .settings(
     version := "0.1.0",
     libraryDependencies ++= circe,
     libraryDependencies ++= Seq(
-      "ch.qos.logback" % "logback-classic" % logbackVersion,
-      "com.typesafe.scala-logging" %% "scala-logging" % scalaLoggingVersion,
-      "org.typelevel" %% "cats-effect" % "3.2.9",
-      "org.scalatest" %% "scalatest" % scalaTestVersion % Test
+      "ch.qos.logback"             % "logback-classic"           % logbackVersion,
+      "com.typesafe.scala-logging" %% "scala-logging"            % scalaLoggingVersion,
+      "org.typelevel"              %% "cats-effect"              % "3.2.9",
+      "org.scala-lang.modules"     %% "scala-parser-combinators" % "2.2.0",
+      "org.scalatest"              %% "scalatest"                % scalaTestVersion % Test
     ),
-    addCompilerPlugin(
-      "org.typelevel" %% "kind-projector" % kindProjectorVersion cross CrossVersion.full
-    )
+    addCompilerPlugin("org.typelevel" % "kind-projector" % "0.13.2" cross CrossVersion.full)
   )
   .settings(
     publishArtifact in packageDoc := false,
     publish / skip := true,
-    sources in(Docker, doc) := Seq.empty
+    sources in (Docker, doc) := Seq.empty
   )
   .enablePlugins(DockerPlugin, JavaAppPackaging)

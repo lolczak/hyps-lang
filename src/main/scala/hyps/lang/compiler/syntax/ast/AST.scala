@@ -1,7 +1,14 @@
-package hyps.lang.compiler.ast
+package hyps.lang.compiler.syntax.ast
 
-trait AST {
+import hyps.lang.compiler.Origin
+import hyps.lang.compiler.util.tree.TreeNode
 
-  def accept[A](visitor: AstVisitor[A]): A
+import scala.reflect.internal.SymbolTable
+
+trait AST extends TreeNode[AST] {
+
+  var origin: Origin = _
+  var symbolTable: SymbolTable = _
+  var `type`: String = _
 
 }

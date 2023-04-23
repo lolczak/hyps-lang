@@ -69,24 +69,28 @@ abstract class BacktrackingParser(input: Lexer) {
     lookaheadBuffer.get(lookaheadOffset + idx - 1)
   }
 
-  /** Matches the next token. Upon success, return void. Otherwise, throws a compiler exception. */
-  protected def matchToken(tokenType: Int, maybeErrorMsg: Option[String] = None): Unit =
-    if (peek(1).kind == tokenType) {
+  /** Matches the next token. Upon success, returns token. Otherwise, throws a compiler exception. */
+  protected def matchToken(tokenType: Int, maybeErrorMsg: Option[String] = None): Token = {
+    val token = peek(1)
+    if (token.kind == tokenType) {
       consume()
+      token
     } else {
       maybeErrorMsg match {
         case None               => throw CompilerError(peek(1).position, s"Cannot match token $tokenType")
         case Some(errorMessage) => throw CompilerError(peek(1).position, errorMessage)
       }
     }
+  }
 
+  /** Looks ahead and checks that the `tokenTypes` matches the next token without consuming it.   */
   protected def check(tokenTypes: Int*): Boolean = {
     val next = peek(1)
     tokenTypes.contains(next.kind)
   }
 
   /**
-    * It speculatively attempt the rule. Upon success, it returns true. Otherwise false.
+    * It speculatively attempts the rule. Upon success, it returns true. Otherwise false.
     *
     * @param rule the non-terminal rule that is attempted to match
     * @return the matching result

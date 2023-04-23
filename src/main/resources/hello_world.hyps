@@ -1,3 +1,4 @@
-fn main(): Unit = {
+@entry_point
+fn main() -> Unit = {
     println("Hello, world!")
 }

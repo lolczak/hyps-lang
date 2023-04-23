@@ -1,6 +1,5 @@
 package hyps.lang
 
-import hyps.lang.compiler.interpreter.RuntimeError
 import hyps.lang.compiler.{Compiler, CompilerError}
 
 import java.io.{BufferedReader, InputStreamReader}
@@ -40,9 +39,6 @@ object Hyps {
     } catch {
       case CompilerError(position, msg) =>
         println(s"[${position.line}:${position.column}] $msg")
-
-      case RuntimeError(msg) =>
-        println(s"Runtime error: $msg")
 
       case NonFatal(ex) => ex.printStackTrace()
     }

@@ -1,6 +1,6 @@
 package hyps.lang.compiler.syntax.parser
 
-import hyps.lang.compiler.ast.Statement
+import hyps.lang.compiler.syntax.ast.Statement
 
 import scala.collection.mutable.ListBuffer
 

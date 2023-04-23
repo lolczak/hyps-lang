@@ -1,21 +1,21 @@
 package hyps.lang.compiler.syntax.parser
 
-import hyps.lang.compiler.ast.Statement
+import hyps.lang.compiler.syntax.ast.Statement
 
 trait StatementParser { this: BacktrackingParser with ExprParser =>
 
   protected def statement(): Statement =
-    if (check(Tokens.PRINT)) {
+    if (check(Tokens.PRINTLN)) {
       printStatement()
     } else {
       expressionStatement()
     }
 
-  protected def printStatement(): Statement.PrintStatement = {
-    matchToken(Tokens.PRINT)
+  protected def printStatement(): Statement.PrintlnStatement = {
+    matchToken(Tokens.PRINTLN)
     val argument = expression()
     matchToken(Tokens.SEMICOLON, Some("Expect ';' after statement."))
-    Statement.PrintStatement(argument)
+    Statement.PrintlnStatement(argument)
   }
 
   protected def expressionStatement(): Statement.ExpressionStatement = {

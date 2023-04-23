@@ -1,15 +1,15 @@
 package hyps.lang.compiler.syntax.parser
 
-import Lexer.{EOF, Keywords}
-import Tokens._
-import hyps.lang.compiler.{CompilerError, Position}
+import hyps.lang.compiler.syntax.parser.Lexer.{EOF, Keywords}
+import hyps.lang.compiler.syntax.parser.Tokens._
+import hyps.lang.compiler.{CompilerError, Origin}
 
 import scala.annotation.switch
 import scala.reflect.internal.Chars.{CR, LF}
 
-class Lexer(sourceCode: String) {
+class Lexer(name: String, sourceCode: String) {
 
-  private var position: Position = Position.Begin
+  private var position: Origin = Origin.begin(name)
 
   private var lookaheadChar: Char = sourceCode.charAt(position.offset)
 
@@ -30,7 +30,7 @@ class Lexer(sourceCode: String) {
     val LF = 10.toChar
     val CR = 13.toChar
     while (lookaheadChar != Lexer.EOF) {
-      implicit val startPosition: Position = position
+      implicit val startPosition: Origin = position
       (lookaheadChar) match {
         case ' ' | '\t' | '\r' =>
           consume()
@@ -192,10 +192,10 @@ class Lexer(sourceCode: String) {
       Lexer.EOF
     }
 
-  private def newToken(`type`: Int)(implicit startPosition: Position): Token =
+  private def newToken(`type`: Int)(implicit startPosition: Origin): Token =
     newToken(`type`, sourceCode.charAt(startPosition.offset).toString)
 
-  private def newToken(`type`: Int, lexeme: String)(implicit startPosition: Position): Token =
+  private def newToken(`type`: Int, lexeme: String)(implicit startPosition: Origin): Token =
     Token(`type`, lexeme, startPosition)
 
 }
@@ -206,23 +206,23 @@ object Lexer {
 
   final val Keywords: Map[String, Int] =
     Map(
-      "and"    -> AND,
-      "class"  -> CLASS,
-      "else"   -> ELSE,
-      "false"  -> FALSE,
-      "for"    -> FOR,
-      "fn"     -> FN,
-      "if"     -> IF,
-      "nil"    -> NIL,
-      "or"     -> OR,
-      "return" -> RETURN,
-      "super"  -> SUPER,
-      "this"   -> THIS,
-      "true"   -> TRUE,
-      "var"    -> VAR,
-      "let"    -> LET,
-      "while"  -> WHILE,
-      "print"  -> PRINT
+      "and"     -> AND,
+      "class"   -> CLASS,
+      "else"    -> ELSE,
+      "false"   -> FALSE,
+      "for"     -> FOR,
+      "fn"      -> FN,
+      "if"      -> IF,
+      "null"    -> NULL,
+      "or"      -> OR,
+      "return"  -> RETURN,
+      "super"   -> SUPER,
+      "this"    -> THIS,
+      "true"    -> TRUE,
+      "var"     -> VAR,
+      "let"     -> LET,
+      "while"   -> WHILE,
+      "println" -> PRINTLN
     )
 
 }

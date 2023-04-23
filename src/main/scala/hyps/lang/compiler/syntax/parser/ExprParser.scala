@@ -1,7 +1,7 @@
 package hyps.lang.compiler.syntax.parser
 
 import hyps.lang.compiler.CompilerError
-import hyps.lang.compiler.ast.Expr
+import hyps.lang.compiler.syntax.ast.Expr
 
 /**
   * Hyps expression parser.
@@ -145,7 +145,7 @@ trait ExprParser { this: BacktrackingParser =>
       next.kind match {
         case Tokens.TRUE   => Expr.True
         case Tokens.FALSE  => Expr.False
-        case Tokens.NIL    => Expr.Nil
+        case Tokens.NULL    => Expr.Null
         case Tokens.NUMBER => Expr.NumberLiteral(next.lexeme)
         case Tokens.STRING => Expr.StringLiteral(next.lexeme)
         case Tokens.LEFT_PAREN =>
