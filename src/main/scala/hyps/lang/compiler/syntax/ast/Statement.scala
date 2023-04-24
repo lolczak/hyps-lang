@@ -1,6 +1,6 @@
 package hyps.lang.compiler.syntax.ast
 
-sealed trait Statement extends AST
+trait Statement extends AST
 
 object Statement {
 
@@ -11,18 +11,18 @@ object Statement {
       Block(newChildren.collect { case s: Statement => s })
   }
 
-  case class ExpressionStatement(expr: Expr) extends Statement {
+  case class ExpressionStatement(expr: Expression) extends Statement {
     override def children(): List[AST] = List(expr)
 
     override def withNewChildrenInternal(newChildren: List[AST]): AST =
-      ExpressionStatement(newChildren.head.asInstanceOf[Expr])
+      ExpressionStatement(newChildren.head.asInstanceOf[Expression])
   }
 
-  case class PrintlnStatement(expr: Expr) extends Statement {
+  case class PrintlnStatement(expr: Expression) extends Statement {
     override def children(): List[AST] = List(expr)
 
     override def withNewChildrenInternal(newChildren: List[AST]): AST =
-      PrintlnStatement(newChildren.head.asInstanceOf[Expr])
+      PrintlnStatement(newChildren.head.asInstanceOf[Expression])
   }
 
 }

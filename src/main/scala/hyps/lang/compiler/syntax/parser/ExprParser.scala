@@ -1,7 +1,7 @@
 package hyps.lang.compiler.syntax.parser
 
 import hyps.lang.compiler.CompilerError
-import hyps.lang.compiler.syntax.ast.Expr
+import hyps.lang.compiler.syntax.ast.Expression
 
 /**
   * Hyps expression parser.
@@ -17,7 +17,7 @@ import hyps.lang.compiler.syntax.ast.Expr
   */
 trait ExprParser { this: BacktrackingParser =>
 
-  protected def expression(): Expr = equality()
+  protected def expression(): Expression = equality()
 
   /**
     * Parses equality expression:
@@ -26,14 +26,14 @@ trait ExprParser { this: BacktrackingParser =>
     * }}}
     * @return
     */
-  protected def equality(): Expr = {
+  protected def equality(): Expression = {
     var expr = comparison()
     while (check(Tokens.BANG_EQUAL, Tokens.EQUAL_EQUAL)) {
       val operator = consume()
       val equalityOperation =
         operator.kind match {
-          case Tokens.BANG_EQUAL  => Expr.Unequal(_, _)
-          case Tokens.EQUAL_EQUAL => Expr.Equal(_, _)
+          case Tokens.BANG_EQUAL  => Expression.Unequal(_, _)
+          case Tokens.EQUAL_EQUAL => Expression.Equal(_, _)
         }
       val right = comparison()
       expr = equalityOperation(expr, right)
@@ -48,16 +48,16 @@ trait ExprParser { this: BacktrackingParser =>
     * }}}
     * @return
     */
-  protected def comparison(): Expr = {
+  protected def comparison(): Expression = {
     var expr = term()
     while (check(Tokens.GREATER, Tokens.GREATER_EQUAL, Tokens.LESS, Tokens.LESS_EQUAL)) {
       val operator = consume()
       val comparisonOperation =
         operator.kind match {
-          case Tokens.GREATER       => Expr.Greater(_, _)
-          case Tokens.GREATER_EQUAL => Expr.GreaterEqual(_, _)
-          case Tokens.LESS          => Expr.Less(_, _)
-          case Tokens.LESS_EQUAL    => Expr.LessEqual(_, _)
+          case Tokens.GREATER       => Expression.Greater(_, _)
+          case Tokens.GREATER_EQUAL => Expression.GreaterEqual(_, _)
+          case Tokens.LESS          => Expression.Less(_, _)
+          case Tokens.LESS_EQUAL    => Expression.LessEqual(_, _)
         }
       val right = term()
       expr = comparisonOperation(expr, right)
@@ -72,14 +72,14 @@ trait ExprParser { this: BacktrackingParser =>
     * }}}
     * @return
     */
-  protected def term(): Expr = {
+  protected def term(): Expression = {
     var expr = factor()
     while (check(Tokens.PLUS, Tokens.MINUS)) {
       val operator = consume()
       val termOperation =
         operator.kind match {
-          case Tokens.PLUS  => Expr.Addition(_, _)
-          case Tokens.MINUS => Expr.Subtraction(_, _)
+          case Tokens.PLUS  => Expression.Addition(_, _)
+          case Tokens.MINUS => Expression.Subtraction(_, _)
         }
       val right = factor()
       expr = termOperation(expr, right)
@@ -94,14 +94,14 @@ trait ExprParser { this: BacktrackingParser =>
     * }}}
     * @return factor operation
     */
-  protected def factor(): Expr = {
+  protected def factor(): Expression = {
     var expr = unary()
     while (check(Tokens.STAR, Tokens.SLASH)) {
       val operator = consume()
       val factoryOperation =
         operator.kind match {
-          case Tokens.STAR  => Expr.Multiplication(_, _)
-          case Tokens.SLASH => Expr.Division(_, _)
+          case Tokens.STAR  => Expression.Multiplication(_, _)
+          case Tokens.SLASH => Expression.Division(_, _)
         }
       val right = unary()
       expr = factoryOperation(expr, right)
@@ -116,16 +116,16 @@ trait ExprParser { this: BacktrackingParser =>
     * }}}
     * @return unary expression
     */
-  protected def unary(): Expr = {
+  protected def unary(): Expression = {
     val next = peek(1)
     next.kind match {
       case Tokens.BANG =>
         val expr = unary()
-        Expr.LogicalNot(expr)
+        Expression.LogicalNot(expr)
 
       case Tokens.MINUS =>
         val expr = unary()
-        Expr.UnaryNegation(expr)
+        Expression.UnaryNegation(expr)
 
       case _ =>
         primary()
@@ -139,15 +139,15 @@ trait ExprParser { this: BacktrackingParser =>
     * }}}
     * @return primary expression
     */
-  protected def primary(): Expr = {
+  protected def primary(): Expression = {
     val next = peek(1)
     val expr =
       next.kind match {
-        case Tokens.TRUE   => Expr.True
-        case Tokens.FALSE  => Expr.False
-        case Tokens.NULL    => Expr.Null
-        case Tokens.NUMBER => Expr.NumberLiteral(next.lexeme)
-        case Tokens.STRING => Expr.StringLiteral(next.lexeme)
+        case Tokens.TRUE   => Expression.True
+        case Tokens.FALSE  => Expression.False
+        case Tokens.NULL    => Expression.NullLiteral
+        case Tokens.NUMBER => Expression.NumberLiteral(next.lexeme)
+        case Tokens.STRING => Expression.StringLiteral(next.lexeme)
         case Tokens.LEFT_PAREN =>
           consume()
           val innerExpr = expression()

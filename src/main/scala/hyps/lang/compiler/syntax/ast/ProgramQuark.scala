@@ -19,11 +19,11 @@ object ProgramQuark {
       Program(newChildren.collect { case m: Module => m })
   }
 
-  case class Module(name: String, definitions: List[Definition]) extends ProgramQuark {
+  case class Module(name: String, definitions: List[Declaration]) extends ProgramQuark {
     override def children(): List[AST] = definitions
 
     override def withNewChildrenInternal(newChildren: List[AST]): AST =
-      this.copy(name = name, definitions = newChildren.collect { case d: Definition => d })
+      this.copy(name = name, definitions = newChildren.collect { case d: Declaration => d })
   }
 
 }
