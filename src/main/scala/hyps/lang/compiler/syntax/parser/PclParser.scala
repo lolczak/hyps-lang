@@ -18,23 +18,24 @@ object PclParser extends Parsers with PackratParsers {
     val lexer       = new Lexer(name, sourceCode)
     val scanner     = new Scanner(lexer)
     val matchModule = repsep(declaration, statementDelimiter).apply(_) //syntactic sugar
-    matchModule(scanner).map(module => Program(List(Module(name, module))))
+    matchModule(scanner).map(declarations => Program(List(Module(name, declarations))))
   }
 
   private lazy val statementDelimiter: Parser[Unit] =
-    (rep(matchToken(Tokens.SEMICOLON)) | rep(matchToken(Tokens.NEW_LINE))) ^^^ ()
+    rep1(matchToken(Tokens.SEMICOLON) | matchToken(Tokens.NEW_LINE)) ^^^ ()
 
   private lazy val declaration: Parser[Declaration] = functionDeclaration | variableDeclaration
 
-  private lazy val block: Parser[Statement.Block] = repsep(statement, statementDelimiter) map (
-      list => Statement.Block(list)
-    )
+  private lazy val block: Parser[Statement.Block] =
+    (lbrace ~ opt(statementDelimiter)) ~> separatedSequence(statement, statementDelimiter, blockEnd) map Statement.Block
+
+  private lazy val blockEnd = rbrace | (statementDelimiter ~ rbrace)
 
   private lazy val statement: Parser[Statement] =
     variableDeclaration | printlnStatement
 
   private lazy val printlnStatement: Parser[Statement.PrintlnStatement] =
-    matchToken(Tokens.PRINTLN) ~> (lparen ~> expression) <~ rparen map Statement.PrintlnStatement
+    (matchToken(Tokens.PRINTLN) ~> (lparen ~> expression) <~ rparen) map Statement.PrintlnStatement
 
   private lazy val functionDeclaration: Parser[Declaration.FunctionDeclaration] =
     matchToken(Tokens.FN) ~> identifier ~ (lparen ~> repsep(parameterDeclaration, comma)) ~
@@ -65,8 +66,25 @@ object PclParser extends Parsers with PackratParsers {
   private lazy val comma: Parser[Token]      = matchToken(Tokens.COMMA)
   private lazy val lparen: Parser[Token]     = matchToken(Tokens.LEFT_PAREN)
   private lazy val rparen: Parser[Token]     = matchToken(Tokens.RIGHT_PAREN)
+  private lazy val lbrace: Parser[Token]     = matchToken(Tokens.LEFT_BRACE)
+  private lazy val rbrace: Parser[Token]     = matchToken(Tokens.RIGHT_BRACE)
   private lazy val identifier: Parser[Token] = matchToken(Tokens.IDENTIFIER)
 
   def matchToken(kind: Int): Parser[Token] = acceptIf(_.kind == kind)(found => s"Expected $kind, but found ${found}")
+
+  lazy val eot: Parser[Unit] =
+    Parser { in =>
+      if (in.atEnd) Success((), in)
+      else Failure("no end of input", in)
+    }
+
+  def repTill[T](p: => Parser[T], end: => Parser[Any]): Parser[List[T]] =
+    end ^^^ List.empty | (p ~ repTill(p, end)) ^^ { case x ~ xs => x :: xs }
+
+  def separatedSequence[T](p: => Parser[T], s: => Parser[Any], end: => Parser[Any]): Parser[List[T]] =
+    for {
+      x  <- p
+      xs <- repTill(s ~> p, end)
+    } yield x :: xs
 
 }

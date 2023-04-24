@@ -10,6 +10,14 @@ class PclParserSpec extends AnyFlatSpec {
         |  println("Hello, world!")
         |}
         |""".stripMargin
+
+    val lexer = new Lexer("test", sourceCode)
+    var token: Token = null
+    do {
+      token = lexer.nextToken()
+      println(token)
+    } while (token.kind != Tokens.EOF)
+
     val result = PclParser.parse("main", sourceCode)
     println(result)
   }

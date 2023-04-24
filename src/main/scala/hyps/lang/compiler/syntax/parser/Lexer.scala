@@ -7,7 +7,7 @@ import hyps.lang.compiler.{CompilerError, Origin}
 import scala.annotation.switch
 import scala.reflect.internal.Chars.{CR, LF}
 
-class Lexer(name: String, val sourceCode: String) {
+class Lexer(val name: String, val sourceCode: String) {
 
   private var position: Origin = Origin.begin(name)
 
