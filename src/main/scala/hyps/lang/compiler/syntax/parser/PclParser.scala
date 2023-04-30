@@ -1,6 +1,7 @@
 package hyps.lang.compiler.syntax.parser
 
 import hyps.lang.compiler.syntax.ast.Declaration.VariableDeclaration
+import hyps.lang.compiler.syntax.ast.Expression.SymbolReference
 import hyps.lang.compiler.syntax.ast.TopLevelConstruct.{Program, SourceFile}
 import hyps.lang.compiler.syntax.ast.{Declaration, Expression, Statement}
 
@@ -16,13 +17,13 @@ object PclParser extends Parsers with PackratParsers {
 
   def parse(name: String, sourceCode: String): ParseResult[Program] = {
     val lexer   = new Lexer(name, sourceCode)
-    val scanner = new Scanner(lexer)
-    sourceFile(name)(scanner).map(sourceFile => Program(List(sourceFile)))
+    val scanner = Scanner(lexer)
+    parseSourceFile(name)(scanner).map(sourceFile => Program(List(sourceFile)))
   }
 
   //------------------------------------------ TOP-LEVEL CONSTRUCTS ----------------------------------------------------
 
-  private def sourceFile(name: String): Parser[SourceFile] = {
+  private def parseSourceFile(name: String): Parser[SourceFile] = {
     val fileEnd      = opt(statementDelimiter) ~ eof
     val declarations = opt(statementDelimiter) ~> separatedSequence(declaration, statementDelimiter, fileEnd)
     declarations map (declarations => SourceFile(name, declarations))
@@ -61,13 +62,15 @@ object PclParser extends Parsers with PackratParsers {
     }
 
   private lazy val variableDeclaration: Parser[VariableDeclaration] =
-    matchToken(Tokens.VAR) ~> identifier ~ (colon ~> identifier) ~ (matchToken(Tokens.EQUAL) ~> expression) map {
-      case name ~ varType ~ initializer => VariableDeclaration(name.lexeme, varType.lexeme, initializer)
+    matchToken(Tokens.VAR) ~> identifier ~ opt(colon ~> identifier) ~ (matchToken(Tokens.EQUAL) ~> expression) map {
+      case name ~ varType ~ initializer => VariableDeclaration(name.lexeme, varType.map(_.lexeme), initializer)
     }
 
   //--------------------------------------- EXPRESSIONS ---------------------------------------
 
-  private lazy val expression: Parser[Expression] = stringLiteral | nullLiteral //todo add symbol
+  private lazy val expression: Parser[Expression] = stringLiteral | nullLiteral | symbolReference
+
+  private lazy val symbolReference: Parser[SymbolReference] = identifier map (t => SymbolReference(t.lexeme))
 
   //--------------------------------------- TOKEN MATCHERS ---------------------------------------
 

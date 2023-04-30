@@ -34,7 +34,7 @@ object Declaration {
       this.copy(body = newChildren.head.asInstanceOf[Block])
   }
 
-  case class VariableDeclaration(name: String, varType: String, initializer: Expression) extends Declaration {
+  case class VariableDeclaration(name: String, varType: Option[String], initializer: Expression) extends Declaration {
     override def children(): List[AST] = List(initializer)
 
     override def withNewChildrenInternal(newChildren: List[AST]): AST =

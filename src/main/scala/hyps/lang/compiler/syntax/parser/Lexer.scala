@@ -9,7 +9,7 @@ import scala.reflect.internal.Chars.{CR, LF}
 
 class Lexer(val name: String, val sourceCode: String) {
 
-  private var position: Origin = Origin.begin(name)
+  var position: Origin = Origin.begin(name)
 
   private var lookaheadChar: Char = sourceCode.charAt(position.offset)
 
@@ -85,7 +85,7 @@ class Lexer(val name: String, val sourceCode: String) {
             consume()
             return newToken(EQUAL_EQUAL, "==")
           } else {
-            return newToken(EQUAL_EQUAL)
+            return newToken(EQUAL)
           }
         case '<' =>
           consume()

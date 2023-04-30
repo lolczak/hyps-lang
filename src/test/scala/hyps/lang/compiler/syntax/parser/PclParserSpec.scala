@@ -7,7 +7,8 @@ class PclParserSpec extends AnyFlatSpec {
   "Hyps parser" should "parse function declaration" in {
     val sourceCode =
       """fn main(): Unit {
-        |  println("Hello, world!")
+        |  var message = "Hello, world!"
+        |  println(message)
         |}
         |""".stripMargin
 
@@ -17,7 +18,6 @@ class PclParserSpec extends AnyFlatSpec {
       token = lexer.nextToken()
       println(token)
     } while (token.kind != Tokens.EOF)
-
     val result = PclParser.parse("main", sourceCode)
     println(result)
   }

@@ -152,6 +152,12 @@ object Expression {
       }
   }
 
+  case class SymbolReference(name: String) extends Expression {
+    override def children(): List[AST] = List.empty
+
+    override def withNewChildrenInternal(newChildren: List[AST]): AST = this
+  }
+
   sealed trait Literal extends Expression
 
   case class NumberLiteral(value: String) extends Literal {
