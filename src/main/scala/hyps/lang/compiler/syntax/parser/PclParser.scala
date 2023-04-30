@@ -54,22 +54,28 @@ object PclParser extends Parsers with PackratParsers {
       case name ~ varType ~ initializer => VariableDeclaration(name.lexeme, varType.lexeme, initializer)
     }
 
-  private lazy val expression: Parser[Expression] = stringLiteral | nullLiteral //todo add identifier
+  private lazy val expression: Parser[Expression] = stringLiteral | nullLiteral //todo add symbol
 
-  private lazy val stringLiteral: Parser[Expression] = matchToken(Tokens.STRING) map {
-      case token => Expression.StringLiteral(token.lexeme)
+  /** Token matchers */
+  private lazy val stringLiteral: Parser[Expression] = matchToken(Tokens.STRING) map { token =>
+      Expression.StringLiteral(token.lexeme)
     }
 
   private lazy val nullLiteral: Parser[Expression] = matchToken(Tokens.NULL) ^^^ Expression.NullLiteral
+  private lazy val colon: Parser[Token]            = matchToken(Tokens.COLON)
+  private lazy val comma: Parser[Token]            = matchToken(Tokens.COMMA)
+  private lazy val lparen: Parser[Token]           = matchToken(Tokens.LEFT_PAREN)
+  private lazy val rparen: Parser[Token]           = matchToken(Tokens.RIGHT_PAREN)
+  private lazy val lbrace: Parser[Token]           = matchToken(Tokens.LEFT_BRACE)
+  private lazy val rbrace: Parser[Token]           = matchToken(Tokens.RIGHT_BRACE)
+  private lazy val identifier: Parser[Token]       = matchToken(Tokens.IDENTIFIER)
 
-  private lazy val colon: Parser[Token]      = matchToken(Tokens.COLON)
-  private lazy val comma: Parser[Token]      = matchToken(Tokens.COMMA)
-  private lazy val lparen: Parser[Token]     = matchToken(Tokens.LEFT_PAREN)
-  private lazy val rparen: Parser[Token]     = matchToken(Tokens.RIGHT_PAREN)
-  private lazy val lbrace: Parser[Token]     = matchToken(Tokens.LEFT_BRACE)
-  private lazy val rbrace: Parser[Token]     = matchToken(Tokens.RIGHT_BRACE)
-  private lazy val identifier: Parser[Token] = matchToken(Tokens.IDENTIFIER)
-
+  /**
+    * Parses a single token of the given kind.
+    *
+    * @param kind the kind of token to parse
+    * @return a matching token
+    */
   def matchToken(kind: Int): Parser[Token] = acceptIf(_.kind == kind)(found => s"Expected $kind, but found ${found}")
 
   /**
@@ -83,12 +89,25 @@ object PclParser extends Parsers with PackratParsers {
       else Failure("no end of input", in)
     }
 
-  def repTill[T](p: => Parser[T], end: => Parser[Any]): Parser[List[T]] =
-    end ^^^ List.empty | (p ~ repTill(p, end)) ^^ { case x ~ xs => x :: xs }
+  /**
+    * A parser combinator for parsing a sequence of terms separated by a separator.
+    * It tries to match term zero or more times until the parser `end` succeeds
+    *
+    * @param termParser parses a single term
+    * @param end when this parser succeeds, the `separatedSequence` parser will succeed
+    * @return the resulting list of terms
+    */
+  def repTill[T](termParser: => Parser[T], end: => Parser[Any]): Parser[List[T]] =
+    end ^^^ List.empty | (termParser ~ repTill(termParser, end)) ^^ { case x ~ xs => x :: xs }
 
   /**
-    * A parser that matches the given parser `p` zero or more times until the
-    * parser `end` succeeds. The resulting list of values is returned.
+    * A parser combinator for parsing a sequence of terms separated by a separator.
+    * It tries to match term one or more times until the parser `end` succeeds
+    *
+    * @param termParser parses a single term
+    * @param separator separates terms
+    * @param end when this parser succeeds, the `separatedSequence` parser will succeed
+    * @return the resulting list of terms
     */
   def separatedSequence[T](termParser: => Parser[T], separator: => Parser[Any], end: => Parser[Any]): Parser[List[T]] =
     for {
