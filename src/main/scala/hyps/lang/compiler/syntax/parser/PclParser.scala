@@ -72,6 +72,11 @@ object PclParser extends Parsers with PackratParsers {
 
   def matchToken(kind: Int): Parser[Token] = acceptIf(_.kind == kind)(found => s"Expected $kind, but found ${found}")
 
+  /**
+    * The `eot` parser succeeds if we are at the end of input, and fails otherwise.
+    * This is useful for parsers that expect to parse all of the input, such as
+    * parsers for entire files.
+    */
   lazy val eot: Parser[Unit] =
     Parser { in =>
       if (in.atEnd) Success((), in)
@@ -81,10 +86,14 @@ object PclParser extends Parsers with PackratParsers {
   def repTill[T](p: => Parser[T], end: => Parser[Any]): Parser[List[T]] =
     end ^^^ List.empty | (p ~ repTill(p, end)) ^^ { case x ~ xs => x :: xs }
 
-  def separatedSequence[T](p: => Parser[T], s: => Parser[Any], end: => Parser[Any]): Parser[List[T]] =
+  /**
+    * A parser that matches the given parser `p` zero or more times until the
+    * parser `end` succeeds. The resulting list of values is returned.
+    */
+  def separatedSequence[T](termParser: => Parser[T], separator: => Parser[Any], end: => Parser[Any]): Parser[List[T]] =
     for {
-      x  <- p
-      xs <- repTill(s ~> p, end)
+      x  <- termParser
+      xs <- repTill(separator ~> termParser, end)
     } yield x :: xs
 
 }
