@@ -1,11 +1,20 @@
 package hyps.lang.compiler.syntax.ast
 
-import hyps.lang.compiler.syntax.ast.ProgramQuark.Annotation
 import hyps.lang.compiler.syntax.ast.Statement.Block
 
+/** A base trait of all declaration statement. */
 sealed trait Declaration extends Statement
 
 object Declaration {
+
+  /** Decorates code constructs with additional semantic information. */
+  sealed trait Decorator extends Declaration
+
+  case class GenericAnnotation(name: String) extends Decorator {
+    override def children(): List[AST] = List.empty
+
+    override def withNewChildrenInternal(newChildren: List[AST]): AST = this
+  }
 
   case class ParameterDeclaration(name: String, parameterType: String) extends Declaration {
     override def children(): List[AST] = List.empty
@@ -14,7 +23,7 @@ object Declaration {
   }
 
   case class FunctionDeclaration(identifier: String,
-                                 annotations: List[Annotation],
+                                 annotations: List[Decorator],
                                  parameters: List[ParameterDeclaration],
                                  returnType: String,
                                  body: Block)

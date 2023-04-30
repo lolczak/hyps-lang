@@ -1,7 +1,7 @@
 package hyps.lang.compiler.syntax.parser
 
 import hyps.lang.compiler.syntax.ast.Declaration.VariableDeclaration
-import hyps.lang.compiler.syntax.ast.ProgramQuark.{Module, Program}
+import hyps.lang.compiler.syntax.ast.TopLevelConstruct.{Program, SourceFile}
 import hyps.lang.compiler.syntax.ast.{Declaration, Expression, Statement}
 
 import scala.util.parsing.combinator._
@@ -15,27 +15,38 @@ object PclParser extends Parsers with PackratParsers {
   override type Elem = Token
 
   def parse(name: String, sourceCode: String): ParseResult[Program] = {
-    val lexer       = new Lexer(name, sourceCode)
-    val scanner     = new Scanner(lexer)
-    val matchModule = repsep(declaration, statementDelimiter).apply(_) //syntactic sugar
-    matchModule(scanner).map(declarations => Program(List(Module(name, declarations))))
+    val lexer   = new Lexer(name, sourceCode)
+    val scanner = new Scanner(lexer)
+    sourceFile(name)(scanner).map(sourceFile => Program(List(sourceFile)))
   }
 
-  private lazy val statementDelimiter: Parser[Unit] =
-    rep1(matchToken(Tokens.SEMICOLON) | matchToken(Tokens.NEW_LINE)) ^^^ ()
+  //------------------------------------------ TOP-LEVEL CONSTRUCTS ----------------------------------------------------
 
-  private lazy val declaration: Parser[Declaration] = functionDeclaration | variableDeclaration
+  private def sourceFile(name: String): Parser[SourceFile] = {
+    val fileEnd      = opt(statementDelimiter) ~ eof
+    val declarations = opt(statementDelimiter) ~> separatedSequence(declaration, statementDelimiter, fileEnd)
+    declarations map (declarations => SourceFile(name, declarations))
+  }
 
-  private lazy val block: Parser[Statement.Block] =
-    (lbrace ~ opt(statementDelimiter)) ~> separatedSequence(statement, statementDelimiter, blockEnd) map Statement.Block
-
-  private lazy val blockEnd = rbrace | (statementDelimiter ~ rbrace)
+  //------------------------------------------ STATEMENTS --------------------------------------------------------------
 
   private lazy val statement: Parser[Statement] =
     variableDeclaration | printlnStatement
 
   private lazy val printlnStatement: Parser[Statement.PrintlnStatement] =
     (matchToken(Tokens.PRINTLN) ~> (lparen ~> expression) <~ rparen) map Statement.PrintlnStatement
+
+  private lazy val statementDelimiter: Parser[Unit] =
+    rep1(matchToken(Tokens.SEMICOLON) | matchToken(Tokens.NEW_LINE)) ^^^ ()
+
+  private lazy val block: Parser[Statement.Block] =
+    (lbrace ~ opt(statementDelimiter)) ~> separatedSequence(statement, statementDelimiter, blockEnd) map Statement.Block
+
+  private lazy val blockEnd = rbrace | (statementDelimiter ~ rbrace)
+
+  //------------------------------------------ DECLARATIONS ------------------------------------------------------------
+
+  private lazy val declaration: Parser[Declaration] = functionDeclaration | variableDeclaration
 
   private lazy val functionDeclaration: Parser[Declaration.FunctionDeclaration] =
     matchToken(Tokens.FN) ~> identifier ~ (lparen ~> repsep(parameterDeclaration, comma)) ~
@@ -54,9 +65,12 @@ object PclParser extends Parsers with PackratParsers {
       case name ~ varType ~ initializer => VariableDeclaration(name.lexeme, varType.lexeme, initializer)
     }
 
+  //--------------------------------------- EXPRESSIONS ---------------------------------------
+
   private lazy val expression: Parser[Expression] = stringLiteral | nullLiteral //todo add symbol
 
-  /** Token matchers */
+  //--------------------------------------- TOKEN MATCHERS ---------------------------------------
+
   private lazy val stringLiteral: Parser[Expression] = matchToken(Tokens.STRING) map { token =>
       Expression.StringLiteral(token.lexeme)
     }
@@ -70,20 +84,23 @@ object PclParser extends Parsers with PackratParsers {
   private lazy val rbrace: Parser[Token]           = matchToken(Tokens.RIGHT_BRACE)
   private lazy val identifier: Parser[Token]       = matchToken(Tokens.IDENTIFIER)
 
+  //--------------------------------------- GENERAL PURPOSE PARSERS ---------------------------------------
+
   /**
     * Parses a single token of the given kind.
     *
     * @param kind the kind of token to parse
     * @return a matching token
     */
-  def matchToken(kind: Int): Parser[Token] = acceptIf(_.kind == kind)(found => s"Expected $kind, but found ${found}")
+  private def matchToken(kind: Int): Parser[Token] =
+    acceptIf(_.kind == kind)(found => s"Expected $kind, but found ${found}")
 
   /**
     * The `eot` parser succeeds if we are at the end of input, and fails otherwise.
     * This is useful for parsers that expect to parse all of the input, such as
     * parsers for entire files.
     */
-  lazy val eot: Parser[Unit] =
+  private lazy val eof: Parser[Unit] =
     Parser { in =>
       if (in.atEnd) Success((), in)
       else Failure("no end of input", in)
@@ -97,7 +114,7 @@ object PclParser extends Parsers with PackratParsers {
     * @param end when this parser succeeds, the `separatedSequence` parser will succeed
     * @return the resulting list of terms
     */
-  def repTill[T](termParser: => Parser[T], end: => Parser[Any]): Parser[List[T]] =
+  private def repTill[T](termParser: => Parser[T], end: => Parser[Any]): Parser[List[T]] =
     end ^^^ List.empty | (termParser ~ repTill(termParser, end)) ^^ { case x ~ xs => x :: xs }
 
   /**
@@ -109,7 +126,9 @@ object PclParser extends Parsers with PackratParsers {
     * @param end when this parser succeeds, the `separatedSequence` parser will succeed
     * @return the resulting list of terms
     */
-  def separatedSequence[T](termParser: => Parser[T], separator: => Parser[Any], end: => Parser[Any]): Parser[List[T]] =
+  private def separatedSequence[T](termParser: => Parser[T],
+                                   separator: => Parser[Any],
+                                   end: => Parser[Any]): Parser[List[T]] =
     for {
       x  <- termParser
       xs <- repTill(separator ~> termParser, end)
