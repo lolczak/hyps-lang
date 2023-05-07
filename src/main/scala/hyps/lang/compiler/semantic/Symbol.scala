@@ -15,6 +15,7 @@ object Symbol {
   case class BuiltInTypeSymbol(name: String) extends Symbol with Type
 
   case class VariableSymbol(name: String, ref: AST, dataType: Option[Type]) extends Symbol
+  case class FunctionSymbol(name: String, ref: AST)                         extends Symbol
 //  case object ClassSymbol    extends Symbol
 //  case object FunctionSymbol extends Symbol
 //  case object MethodSymbol   extends Symbol

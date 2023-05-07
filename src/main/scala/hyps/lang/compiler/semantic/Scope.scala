@@ -19,4 +19,10 @@ class Scope(name: String, parent: Option[Scope] = None) extends SymbolTable {
 
   def resolve(symbol: String): Option[Symbol] =
     members.get(symbol).orElse(parent.flatMap(_.resolve(symbol)))
+
+  def resolveType(symbol: String): Option[Type] =
+    resolve(symbol).flatMap {
+      case symbol: Type => Some(symbol)
+      case _            => None
+    }
 }
