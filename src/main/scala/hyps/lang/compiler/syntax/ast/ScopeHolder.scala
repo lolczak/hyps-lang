@@ -1,6 +1,6 @@
 package hyps.lang.compiler.syntax.ast
 
-import hyps.lang.compiler.semantic.{Scope, Scopes}
+import hyps.lang.compiler.semantic.types.{Scope, Scopes}
 
 trait ScopeHolder {
 

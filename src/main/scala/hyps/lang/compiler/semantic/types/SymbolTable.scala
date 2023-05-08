@@ -1,4 +1,4 @@
-package hyps.lang.compiler.semantic
+package hyps.lang.compiler.semantic.types
 
 /** Used to track symbol definitions and identify them later on. */
 trait SymbolTable {

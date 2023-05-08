@@ -1,7 +1,7 @@
 package hyps.lang.compiler.syntax.ast
 
 import hyps.lang.compiler.CompilerError
-import hyps.lang.compiler.semantic.Symbol.VariableSymbol
+import hyps.lang.compiler.semantic.types.Symbol.VariableSymbol
 
 trait Reference extends Expression
 

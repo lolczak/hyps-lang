@@ -1,4 +1,4 @@
-package hyps.lang.compiler.semantic
+package hyps.lang.compiler.semantic.types
 
 import hyps.lang.compiler.syntax.ast.AST
 

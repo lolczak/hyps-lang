@@ -1,6 +1,6 @@
 package hyps.lang.compiler
 
-import hyps.lang.compiler.semantic.SymbolTableConstructionPass
+import hyps.lang.compiler.semantic.analysis.SymbolTableConstructionPass
 import hyps.lang.compiler.syntax.ast.AST
 import hyps.lang.compiler.syntax.parser.PclParser
 

@@ -1,4 +1,4 @@
-package hyps.lang.compiler.semantic
+package hyps.lang.compiler.semantic.types
 
 object Scopes {
 

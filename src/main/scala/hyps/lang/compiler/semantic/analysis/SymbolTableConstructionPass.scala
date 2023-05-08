@@ -1,7 +1,9 @@
-package hyps.lang.compiler.semantic
+package hyps.lang.compiler.semantic.analysis
 
 import hyps.lang.compiler.CompilerError
-import hyps.lang.compiler.semantic.Symbol.VariableSymbol
+import hyps.lang.compiler.semantic.types
+import hyps.lang.compiler.semantic.types.Symbol.VariableSymbol
+import hyps.lang.compiler.semantic.types.{Scope, Scopes}
 import hyps.lang.compiler.syntax.ast.AST
 import hyps.lang.compiler.syntax.ast.Declaration.{FunctionDeclaration, VariableDeclaration}
 import hyps.lang.compiler.syntax.ast.Expression.SymbolReference
@@ -18,7 +20,7 @@ class SymbolTableConstructionPass extends TreeRewriter[AST] {
 
   before {
     case functionDeclaration: FunctionDeclaration =>
-      currentScope.declare(Symbol.FunctionSymbol(functionDeclaration.identifier, functionDeclaration))
+      currentScope.declare(types.Symbol.FunctionSymbol(functionDeclaration.identifier, functionDeclaration))
       val functionScope = new Scope(s"function:${functionDeclaration.identifier}", Some(currentScope))
       scopeStack.push(functionScope)
       functionDeclaration.setScope(functionScope)
