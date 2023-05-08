@@ -2,7 +2,7 @@ package hyps.lang.compiler.syntax.ast
 
 import hyps.lang.compiler.CompilerError
 
-sealed trait Expression extends AST
+trait Expression extends AST
 
 object Expression {
 

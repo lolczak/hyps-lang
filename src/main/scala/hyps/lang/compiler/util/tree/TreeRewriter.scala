@@ -9,7 +9,7 @@ import scala.collection.mutable
   * It can be applied to the AST node itself and to all its children.
   * It can also be applied before or after the transformation of the children.
   */
-abstract class CompilerPass[A] {
+abstract class TreeRewriter[A] {
 
   private val beforeFns             = mutable.ListBuffer.empty[A =|> Unit]
   private val afterFns              = mutable.ListBuffer.empty[A =|> Unit]

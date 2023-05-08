@@ -1,5 +1,6 @@
 package hyps.lang.compiler.syntax.parser
 
+import hyps.lang.compiler.Compiler
 import org.scalatest.flatspec.AnyFlatSpec
 
 class PclParserSpec extends AnyFlatSpec {
@@ -12,13 +13,7 @@ class PclParserSpec extends AnyFlatSpec {
         |}
         |""".stripMargin
 
-    val lexer = new Lexer("test", sourceCode)
-    var token: Token = null
-    do {
-      token = lexer.nextToken()
-      println(token)
-    } while (token.kind != Tokens.EOF)
-    val result = PclParser.parse("main", sourceCode)
+    val result = Compiler.compile(sourceCode)
     println(result)
   }
 
