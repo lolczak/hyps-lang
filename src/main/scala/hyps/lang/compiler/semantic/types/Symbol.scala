@@ -12,7 +12,9 @@ trait Symbol {
 object Symbol {
 
   /** Represents built-in types that are available in the language without compiling definition. */
-  case class BuiltInTypeSymbol(name: String) extends Symbol with Type
+  case class BuiltInTypeSymbol(qualifiedName: String) extends Symbol with Type {
+    override def name: String = qualifiedName
+  }
 
   case class VariableSymbol(name: String, ref: AST, dataType: Option[Type]) extends Symbol
   case class FunctionSymbol(name: String, ref: AST)                         extends Symbol

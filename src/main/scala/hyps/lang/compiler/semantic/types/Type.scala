@@ -5,6 +5,6 @@ package hyps.lang.compiler.semantic.types
   */
 trait Type {
 
-  def name: String
+  def qualifiedName: String
 
 }
