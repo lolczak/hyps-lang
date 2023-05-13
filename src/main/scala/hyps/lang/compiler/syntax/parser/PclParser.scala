@@ -68,6 +68,26 @@ object PclParser extends Parsers with PackratParsers {
 
   //--------------------------------------- EXPRESSIONS ---------------------------------------
 
+  /**
+    * Hyps expression parser.
+    * The precedence rules going from lowest to highest:
+    * {{{
+    *   | Name       | Operator  | Associates |
+    *   | Equality   | == !=     | Left       |
+    *   | Comparison | > < >= <= | Left       |
+    *   | Term       | + -       | Left       |
+    *   | Factor     | * /       | Left       |
+    *   | Unary      | ! -       | Right      |
+    * }}}
+    */
+  /**
+    * Parses the below rule:
+    * {{{
+    *   primary -> NUMBER | STRING | "true" | "false" | "nil" | "(" expression ")" ;
+    * }}}
+    *
+    * @return primary expression
+    */
   private lazy val expression: Parser[Expression] = stringLiteral | nullLiteral | symbolReference
 
   private lazy val symbolReference: Parser[SymbolReference] = identifier map (t => SymbolReference(t.lexeme))
