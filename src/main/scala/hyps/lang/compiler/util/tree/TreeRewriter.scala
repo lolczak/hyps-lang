@@ -1,7 +1,5 @@
 package hyps.lang.compiler.util.tree
 
-import hyps.lang.compiler.prelude.=|>
-
 import scala.collection.mutable
 
 /** A compiler pass is a transformation that is applied to the AST.
@@ -11,9 +9,9 @@ import scala.collection.mutable
   */
 abstract class TreeRewriter[A] {
 
-  private val beforeFns             = mutable.ListBuffer.empty[A =|> Unit]
-  private val afterFns              = mutable.ListBuffer.empty[A =|> Unit]
-  private var transformFns: A =|> A = { case node => node }
+  private val beforeFns                           = mutable.ListBuffer.empty[PartialFunction[A, Unit]]
+  private val afterFns                            = mutable.ListBuffer.empty[PartialFunction[A, Unit]]
+  private var transformFns: PartialFunction[A, A] = { case node => node }
 
   final def enterNode(node: A): Unit = beforeFns.foreach(_.applyOrElse(node, (_: A) => ()))
 
@@ -21,10 +19,10 @@ abstract class TreeRewriter[A] {
 
   final def transformNode(node: A): A = transformFns.applyOrElse(node, identity[A])
 
-  final protected def before(compilerPass: A =|> Unit): Unit = beforeFns += compilerPass
+  final protected def before(compilerPass: PartialFunction[A, Unit]): Unit = beforeFns += compilerPass
 
-  final protected def after(compilerPass: A =|> Unit): Unit = afterFns += compilerPass
+  final protected def after(compilerPass: PartialFunction[A, Unit]): Unit = afterFns += compilerPass
 
-  final protected def transform(compilerPass: A =|> A): Unit = transformFns = compilerPass
+  final protected def transform(compilerPass: PartialFunction[A, A]): Unit = transformFns = compilerPass
 
 }
