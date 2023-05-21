@@ -10,6 +10,5 @@ import hyps.lang.compiler.util.tree.TreeNode
 trait AST extends TreeNode[AST] with ScopeHolder {
 
   var origin: Origin = _
-  var `type`: String = _
 
 }

@@ -1,6 +1,8 @@
 package hyps.lang.compiler.syntax.ast
 
 import hyps.lang.compiler.CompilerError
+import hyps.lang.compiler.builtin.BuiltInTypes
+import hyps.lang.compiler.semantic.types.Type
 
 trait Expression extends AST
 
@@ -160,19 +162,29 @@ object Expression {
 
   sealed trait Literal extends Expression
 
-  case class NumberLiteral(value: String) extends Literal {
+  case class NumberLiteral(value: String) extends Literal with Typed {
+
+    override def `type`: Type = BuiltInTypes.FloatType
+
     override def children(): List[AST] = List.empty
 
     override def withNewChildrenInternal(newChildren: List[AST]): AST = this
   }
 
-  case class StringLiteral(value: String) extends Literal {
+  case class StringLiteral(value: String) extends Literal with Typed {
+
+    override def `type`: Type = BuiltInTypes.StringType
+
     override def children(): List[AST] = List.empty
 
     override def withNewChildrenInternal(newChildren: List[AST]): AST = this
   }
 
-  sealed trait BooleanLiteral extends Literal {}
+  sealed trait BooleanLiteral extends Literal with Typed {
+
+    override def `type`: Type = BuiltInTypes.BooleanType
+
+  }
 
   case object True extends BooleanLiteral {
     override def children(): List[AST] = List.empty

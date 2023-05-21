@@ -1,15 +1,15 @@
 package hyps.lang.compiler.semantic.types
 
-import hyps.lang.compiler.builtin.BuiltinTypes
+import hyps.lang.compiler.builtin.BuiltInTypes
 
 object Scopes {
 
   val BuiltInScope: Scope = {
     val scope = new Scope("BuiltInScope", None)
-    scope.declare(Symbol.BuiltInTypeSymbol(BuiltinTypes.IntType))
-    scope.declare(Symbol.BuiltInTypeSymbol(BuiltinTypes.FloatType))
-    scope.declare(Symbol.BuiltInTypeSymbol(BuiltinTypes.StringType))
-    scope.declare(Symbol.BuiltInTypeSymbol(BuiltinTypes.BooleanType))
+    scope.declare(BuiltInTypes.IntType)
+    scope.declare(BuiltInTypes.FloatType)
+    scope.declare(BuiltInTypes.StringType)
+    scope.declare(BuiltInTypes.BooleanType)
     scope
   }
 

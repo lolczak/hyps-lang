@@ -3,7 +3,7 @@ package hyps.lang.compiler.syntax.ast
 import hyps.lang.compiler.syntax.ast.Statement.Block
 
 /** A base trait of all declaration statement. */
-sealed trait Declaration extends Statement
+trait Declaration extends Statement
 
 object Declaration {
 
