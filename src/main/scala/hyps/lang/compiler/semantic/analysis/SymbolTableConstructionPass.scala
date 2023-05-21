@@ -26,7 +26,7 @@ class SymbolTableConstructionPass extends TreeRewriter[AST] {
       functionDeclaration.setScope(functionScope)
   }
 
-  transform {
+  rewrite {
     case functionDeclaration: FunctionDeclaration =>
       functionDeclaration.parameters.foreach { parameter =>
         currentScope

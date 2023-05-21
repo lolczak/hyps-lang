@@ -23,6 +23,6 @@ abstract class TreeRewriter[A] {
 
   final protected def after(compilerPass: PartialFunction[A, Unit]): Unit = afterFns += compilerPass
 
-  final protected def transform(compilerPass: PartialFunction[A, A]): Unit = transformFns = compilerPass
+  final protected def rewrite(compilerPass: PartialFunction[A, A]): Unit = transformFns = compilerPass
 
 }
