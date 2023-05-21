@@ -30,12 +30,12 @@ class SymbolTableConstructionPass extends TreeRewriter[AST] {
     case functionDeclaration: FunctionDeclaration =>
       functionDeclaration.parameters.foreach { parameter =>
         currentScope
-          .declare(VariableSymbol(parameter.name, parameter, currentScope.resolveType(parameter.parameterType)))
+          .declare(VariableSymbol(parameter.name, parameter))
       }
       functionDeclaration
 
-    case construct @ VariableDeclaration(name, varType, _) =>
-      currentScope.declare(VariableSymbol(name, construct, varType.flatMap(currentScope.resolveType)))
+    case construct @ VariableDeclaration(name, _, _) =>
+      currentScope.declare(VariableSymbol(name, construct))
       construct.setScope(currentScope)
       construct
 

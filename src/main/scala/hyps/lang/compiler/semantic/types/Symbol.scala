@@ -16,8 +16,8 @@ object Symbol {
     override def name: String = qualifiedName
   }
 
-  case class VariableSymbol(name: String, ref: AST, dataType: Option[Type]) extends Symbol
-  case class FunctionSymbol(name: String, ref: AST)                         extends Symbol
+  case class VariableSymbol(name: String, declaration: AST) extends Symbol
+  case class FunctionSymbol(name: String, declaration: AST) extends Symbol
 //  case object ClassSymbol    extends Symbol
 //  case object FunctionSymbol extends Symbol
 //  case object MethodSymbol   extends Symbol
