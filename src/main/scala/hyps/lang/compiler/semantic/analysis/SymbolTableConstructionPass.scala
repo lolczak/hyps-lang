@@ -34,12 +34,12 @@ class SymbolTableConstructionPass extends TreeRewriter[AST] {
       }
       functionDeclaration
 
-    case code @ VariableDeclaration(name, varType, _) =>
-      currentScope.declare(VariableSymbol(name, code, varType.flatMap(currentScope.resolveType)))
-      code.setScope(currentScope)
-      code
+    case construct @ VariableDeclaration(name, varType, _) =>
+      currentScope.declare(VariableSymbol(name, construct, varType.flatMap(currentScope.resolveType)))
+      construct.setScope(currentScope)
+      construct
 
-    case code @ SymbolReference(name) =>
+    case construct @ SymbolReference(name) =>
       currentScope.resolve(name) match {
         case Some(symbol: VariableSymbol) =>
           val ref = VariableReference(symbol)
@@ -47,7 +47,7 @@ class SymbolTableConstructionPass extends TreeRewriter[AST] {
           ref
 
         case _ =>
-          throw CompilerError(code.origin, s"Cannot resolve symbol $name")
+          throw CompilerError(construct.origin, s"Cannot resolve symbol $name")
       }
 
     case other =>
