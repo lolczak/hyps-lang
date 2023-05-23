@@ -12,6 +12,8 @@ import hyps.lang.compiler.util.tree.TreeRewriter
 
 import scala.collection.mutable
 
+/** A transformation that constructs the symbol table for a program.
+  */
 class SymbolTableConstructionPass extends TreeRewriter[AST] {
 
   private val scopeStack: mutable.Stack[Scope] = mutable.Stack(Scopes.GlobalScope)
