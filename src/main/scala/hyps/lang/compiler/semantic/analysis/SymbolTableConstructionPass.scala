@@ -21,7 +21,7 @@ class SymbolTableConstructionPass extends TreeRewriter[AST] {
   before {
     case functionDeclaration: FunctionDeclaration =>
       currentScope.declare(types.Symbol.FunctionSymbol(functionDeclaration.identifier, functionDeclaration))
-      val functionScope = new Scope(s"function:${functionDeclaration.identifier}", Some(currentScope))
+      val functionScope = new Scope(Some(currentScope))
       scopeStack.push(functionScope)
       functionDeclaration.setScope(functionScope)
   }
@@ -29,9 +29,10 @@ class SymbolTableConstructionPass extends TreeRewriter[AST] {
   rewrite {
     case functionDeclaration: FunctionDeclaration =>
       functionDeclaration.parameters.foreach { parameter =>
-        currentScope
-          .declare(VariableSymbol(parameter.name, parameter))
+        currentScope.declare(VariableSymbol(parameter.name, parameter))
+        parameter.setScope(currentScope)
       }
+      functionDeclaration.setScope(currentScope)
       functionDeclaration
 
     case construct @ VariableDeclaration(name, _, _) =>
@@ -41,13 +42,13 @@ class SymbolTableConstructionPass extends TreeRewriter[AST] {
 
     case construct @ SymbolReference(name) =>
       currentScope.resolve(name) match {
-        case Some(symbol: VariableSymbol) =>
-          val ref = VariableReference(symbol)
+        case Some(_: VariableSymbol) =>
+          val ref = VariableReference(name)
           ref.setScope(currentScope)
           ref
 
         case _ =>
-          throw CompilerError(construct.origin, s"Cannot resolve symbol $name")
+          throw CompilerError(construct.origin, s"Cannot resolve symbol $name [$construct]")
       }
 
     case other =>
@@ -56,8 +57,12 @@ class SymbolTableConstructionPass extends TreeRewriter[AST] {
   }
 
   after {
-    case _: FunctionDeclaration =>
+    case funDecl: FunctionDeclaration =>
+      funDecl.setScope(currentScope)
       scopeStack.pop()
+
+    case other =>
+      other.setScope(currentScope)
   }
 
 }

@@ -10,7 +10,7 @@ trait TreeNode[A <: TreeNode[A]] { self: A =>
     compilerPass.enterNode(self)
     val afterRule = compilerPass.transformNode(self)
     val finalNode = afterRule.mapChildren(compilerPass)
-    compilerPass.exitNode(afterRule)
+    compilerPass.exitNode(finalNode)
     finalNode
   }
 

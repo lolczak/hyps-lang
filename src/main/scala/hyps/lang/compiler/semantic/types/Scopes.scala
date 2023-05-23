@@ -5,7 +5,7 @@ import hyps.lang.compiler.builtin.BuiltInTypes
 object Scopes {
 
   val BuiltInScope: Scope = {
-    val scope = new Scope("BuiltInScope", None)
+    val scope = new Scope(None)
     scope.declare(BuiltInTypes.IntType)
     scope.declare(BuiltInTypes.FloatType)
     scope.declare(BuiltInTypes.StringType)
@@ -13,8 +13,8 @@ object Scopes {
     scope
   }
 
-  val GlobalScope: Scope = new Scope("GlobalScope", Some(BuiltInScope))
+  val GlobalScope: Scope = new Scope(Some(BuiltInScope))
 
-  val EmptyScope: Scope = new Scope("EmptyScope", None)
+  val EmptyScope: Scope = new Scope(None)
 
 }
