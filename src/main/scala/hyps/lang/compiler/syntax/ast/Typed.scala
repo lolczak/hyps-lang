@@ -29,4 +29,11 @@ object Typed {
       else this.copy(initializer = newChildren.head.asInstanceOf[Expression])
   }
 
+  //todo
+  case class TypedVariableReference(symbol: String, dataType: DataType) extends Reference {
+    override def children(): List[AST] = List.empty
+
+    override def withNewChildrenInternal(newChildren: List[AST]): AST = this
+  }
+
 }

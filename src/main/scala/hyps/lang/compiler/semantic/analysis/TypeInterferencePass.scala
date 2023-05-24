@@ -3,6 +3,7 @@ package hyps.lang.compiler.semantic.analysis
 import hyps.lang.compiler.CompilerError
 import hyps.lang.compiler.semantic.types.Symbol.VariableSymbol
 import hyps.lang.compiler.syntax.ast.Declaration.{ParameterDeclaration, VariableDeclaration}
+import hyps.lang.compiler.syntax.ast.Reference.VariableReference
 import hyps.lang.compiler.syntax.ast.Typed._
 import hyps.lang.compiler.syntax.ast.{AST, Typed}
 import hyps.lang.compiler.util.tree.TreeRewriter
@@ -43,6 +44,16 @@ object TypeInterferencePass extends TreeRewriter[AST] {
           newDecl.setScope(scope)
           newDecl
         case _ => varDecl
+      }
+
+    case varRef @ VariableReference(name) =>
+      val scope = varRef.getScope
+      scope.resolve(name) match {
+        case Some(symbol: VariableSymbol) if symbol.dataType.isDefined =>
+          val newRef = TypedVariableReference(name, symbol.dataType.get)
+          newRef.setScope(scope)
+          newRef
+        case _ => varRef
       }
   }
 
