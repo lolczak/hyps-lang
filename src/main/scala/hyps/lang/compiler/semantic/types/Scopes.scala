@@ -10,6 +10,7 @@ object Scopes {
     scope.declare(BuiltInTypes.FloatType)
     scope.declare(BuiltInTypes.StringType)
     scope.declare(BuiltInTypes.BooleanType)
+    scope.declare(BuiltInTypes.UnitType)
     scope
   }
 

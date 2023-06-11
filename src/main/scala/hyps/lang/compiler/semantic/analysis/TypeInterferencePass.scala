@@ -2,17 +2,39 @@ package hyps.lang.compiler.semantic.analysis
 
 import hyps.lang.compiler.CompilerError
 import hyps.lang.compiler.semantic.types.Symbol.VariableSymbol
-import hyps.lang.compiler.syntax.ast.Declaration.{ParameterDeclaration, VariableDeclaration}
+import hyps.lang.compiler.syntax.ast.Declaration._
 import hyps.lang.compiler.syntax.ast.Reference.VariableReference
 import hyps.lang.compiler.syntax.ast.Typed._
 import hyps.lang.compiler.syntax.ast.{AST, Typed}
 import hyps.lang.compiler.util.tree.TreeRewriter
 
 /** A transformation that infers the type of untyped constructs.
+  * It also resolves the type of typed constructs.
   */
 object TypeInterferencePass extends TreeRewriter[AST] {
 
   rewrite {
+    case fnDecl @ FunctionDeclaration(name, decorators, parameters, returnType, body) =>
+      val scope = fnDecl.getScope
+      val newParameters = parameters.map {
+        case parDecl @ ParameterDeclaration(name, dataTypeName) =>
+          scope.resolveType(dataTypeName) match {
+            case Some(dataType) =>
+              scope.redefine(VariableSymbol(name, parDecl, Some(dataType)))
+              val newDecl = TypedParameterDeclaration(name, dataType)
+              newDecl.setScope(scope)
+              newDecl
+            case None => throw CompilerError(parDecl.origin, s"Cannot resolve type $dataTypeName [$parDecl]")
+          }
+      }
+      val newReturnType = scope.resolveType(returnType) match {
+        case Some(dataType) => dataType
+        case None           => throw CompilerError(fnDecl.origin, s"Cannot resolve type $returnType [$fnDecl]")
+      }
+      val newDecl = TypedFunctionDeclaration(name, decorators, newParameters, newReturnType, body)
+      newDecl.setScope(scope)
+      newDecl
+
     case parDecl @ ParameterDeclaration(name, dataTypeName) =>
       val scope = parDecl.getScope
       scope.resolveType(dataTypeName) match {
