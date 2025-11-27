@@ -36,3 +36,7 @@ class Scope(parent: Option[Scope] = None) extends SymbolTable {
       case _                => None
     }
 }
+
+object Scope {
+  val Empty: Scope = new Scope(None)
+}

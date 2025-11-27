@@ -1,30 +1,24 @@
 package hyps.lang.compiler.syntax.ast
 
+import hyps.lang.compiler.syntax.ast.Declaration.FunctionDeclaration
+
 /* A top-level construct in the source code used represent the structure of program. */
 sealed trait TopLevelConstruct extends AST
 
 object TopLevelConstruct {
 
-  //todo add Module
+  case class NamespaceDeclaration(name: Name, body: List[FunctionDeclaration]) extends TopLevelConstruct {
 
-  case class Program(modules: List[SourceFile]) extends TopLevelConstruct {
-    override def children(): List[AST] = modules
+    override def traverse(traverser: Traverser): Unit = {
+      traverser.visit(name)
+      body.foreach(traverser.visit)
+    }
 
-    override def withNewChildrenInternal(newChildren: List[AST]): AST =
-      Program(newChildren.collect { case m: SourceFile => m })
-  }
-
-  /**
-    * A source file containing a source code.
-    *
-    * @param name        the name of the source file
-    * @param definitions the statements in the source file
-    */
-  case class SourceFile(name: String, definitions: List[Statement]) extends TopLevelConstruct {
-    override def children(): List[AST] = definitions
-
-    override def withNewChildrenInternal(newChildren: List[AST]): AST =
-      this.copy(name = name, definitions = newChildren.collect { case s: Statement => s })
+    override def transform(transformer: Transformer): AST =
+      NamespaceDeclaration(
+        transformer.transform(name).asInstanceOf[Name],
+        body.map(f => transformer.transform(f).asInstanceOf[FunctionDeclaration])
+      )
   }
 
 }

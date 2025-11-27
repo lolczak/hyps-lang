@@ -7,9 +7,11 @@ class PclParserSpec extends AnyFlatSpec {
 
   "Hyps parser" should "parse function declaration" in {
     val sourceCode =
-      """fn main(): Unit {
-        |  var message = "Hello, world!"
-        |  println(message)
+      """namespace Main {
+        |  fn main(): Unit = {
+        |    val message = "Hello, world!"
+        |    println(message)
+        |  }
         |}
         |""".stripMargin
 

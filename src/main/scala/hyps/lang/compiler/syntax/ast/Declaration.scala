@@ -1,5 +1,6 @@
 package hyps.lang.compiler.syntax.ast
 
+import hyps.lang.compiler.syntax.ast.Name.{SimpleName, TypeName}
 import hyps.lang.compiler.syntax.ast.Statement.Block
 
 /** A base trait of all declaration statement. */
@@ -10,36 +11,68 @@ object Declaration {
   /** Decorates code constructs with additional semantic information. */
   sealed trait Decorator extends Declaration
 
-  case class GenericAnnotation(name: String) extends Decorator {
-    override def children(): List[AST] = List.empty
+  case class GenericAnnotation(name: SimpleName) extends Decorator {
 
-    override def withNewChildrenInternal(newChildren: List[AST]): AST = this
+    override def traverse(traverser: Traverser): Unit =
+      traverser.visit(name)
+
+    override def transform(transformer: Transformer): AST =
+      GenericAnnotation(transformer.transform(name).asInstanceOf[SimpleName])
   }
 
-  case class ParameterDeclaration(name: String, parameterType: String) extends Declaration {
-    override def children(): List[AST] = List.empty
+  case class ParameterDeclaration(name: SimpleName, parameterType: TypeName) extends Declaration {
 
-    override def withNewChildrenInternal(newChildren: List[AST]): AST = this
+    override def traverse(traverser: Traverser): Unit = {
+      traverser.visit(name)
+      traverser.visit(parameterType)
+    }
+
+    override def transform(transformer: Transformer): AST =
+      ParameterDeclaration(
+        transformer.transform(name).asInstanceOf[SimpleName],
+        transformer.transform(parameterType).asInstanceOf[TypeName]
+      )
   }
 
-  case class FunctionDeclaration(identifier: String,
+  case class FunctionDeclaration(identifier: SimpleName,
                                  annotations: List[Decorator],
                                  parameters: List[ParameterDeclaration],
-                                 returnType: String,
+                                 returnType: TypeName,
                                  body: Block)
       extends Declaration {
-    override def children(): List[AST] = List[AST](body)
 
-    override def withNewChildrenInternal(newChildren: List[AST]): AST =
-      this.copy(body = newChildren.head.asInstanceOf[Block])
+    override def traverse(traverser: Traverser): Unit = {
+      traverser.visit(identifier)
+      annotations.foreach(traverser.visit)
+      parameters.foreach(traverser.visit)
+      traverser.visit(returnType)
+      traverser.visit(body)
+    }
+
+    override def transform(transformer: Transformer): AST =
+      FunctionDeclaration(
+        identifier,
+        annotations.map(a => transformer.transform(a).asInstanceOf[Decorator]),
+        parameters.map(p => transformer.transform(p).asInstanceOf[ParameterDeclaration]),
+        returnType,
+        transformer.transform(body).asInstanceOf[Block]
+      )
   }
 
-  case class VariableDeclaration(name: String, varType: Option[String], initializer: Expression) extends Declaration {
-    override def children(): List[AST] = List(initializer)
+  case class VariableDeclaration(name: SimpleName, varType: Option[TypeName], initializer: Expression)
+      extends Declaration {
 
-    override def withNewChildrenInternal(newChildren: List[AST]): AST =
-      if (newChildren.isEmpty) this
-      else this.copy(initializer = newChildren.head.asInstanceOf[Expression])
+    override def traverse(traverser: Traverser): Unit = {
+      traverser.visit(name)
+      varType.foreach(traverser.visit)
+      traverser.visit(initializer)
+    }
+
+    override def transform(transformer: Transformer): AST =
+      VariableDeclaration(
+        name,
+        varType.map(t => transformer.transform(t).asInstanceOf[TypeName]),
+        transformer.transform(initializer).asInstanceOf[Expression]
+      )
   }
-
 }

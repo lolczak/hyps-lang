@@ -1,5 +1,7 @@
-@entry_point
-fn main() -> Unit = {
-  val message = "Hello, world!"
-  println(message)
+namespace Main {
+  @entry_point
+  fn main() -> Unit = {
+    val message = "Hello, world!"
+    println(message)
+  }
 }

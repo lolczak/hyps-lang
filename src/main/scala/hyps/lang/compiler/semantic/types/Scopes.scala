@@ -16,6 +16,4 @@ object Scopes {
 
   val GlobalScope: Scope = new Scope(Some(BuiltInScope))
 
-  val EmptyScope: Scope = new Scope(None)
-
 }

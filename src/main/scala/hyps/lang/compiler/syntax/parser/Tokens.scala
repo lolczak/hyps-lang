@@ -37,22 +37,23 @@ object Tokens {
   val NUMBER     = 302
 
   //KEYWORDS
-  val FN      = 400
-  val AND     = 401
-  val OR      = 402
-  val CLASS   = 403
-  val ELSE    = 404
-  val FALSE   = 405
-  val FOR     = 406
-  val IF      = 407
-  val NULL    = 408
-  val RETURN  = 409
-  val SUPER   = 410
-  val THIS    = 411
-  val TRUE    = 412
-  val VAR     = 413
-  val LET     = 414
-  val WHILE   = 415
-  val PRINTLN = 416
+  val FN        = 400
+  val AND       = 401
+  val OR        = 402
+  val CLASS     = 403
+  val ELSE      = 404
+  val FALSE     = 405
+  val FOR       = 406
+  val IF        = 407
+  val NULL      = 408
+  val RETURN    = 409
+  val SUPER     = 410
+  val THIS      = 411
+  val TRUE      = 412
+  val VAR       = 413
+  val LET       = 414
+  val WHILE     = 415
+  val PRINTLN   = 416
+  val NAMESPACE = 417
 
 }

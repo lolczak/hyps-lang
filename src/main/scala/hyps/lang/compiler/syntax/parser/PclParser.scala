@@ -1,9 +1,10 @@
 package hyps.lang.compiler.syntax.parser
 
 import hyps.lang.compiler.syntax.ast.Declaration.VariableDeclaration
-import hyps.lang.compiler.syntax.ast.Expression.SymbolReference
-import hyps.lang.compiler.syntax.ast.TopLevelConstruct.{Program, SourceFile}
-import hyps.lang.compiler.syntax.ast.{Declaration, Expression, Statement}
+import hyps.lang.compiler.syntax.ast.Name.{SimpleName, TypeName}
+import hyps.lang.compiler.syntax.ast.Reference.SymbolReference
+import hyps.lang.compiler.syntax.ast.TopLevelConstruct.NamespaceDeclaration
+import hyps.lang.compiler.syntax.ast.{AST, Declaration, Expression, Statement}
 
 import scala.util.parsing.combinator._
 
@@ -15,19 +16,28 @@ object PclParser extends Parsers with PackratParsers {
 
   override type Elem = Token
 
-  def parse(name: String, sourceCode: String): ParseResult[Program] = {
+  def parse(name: String, sourceCode: String): ParseResult[AST] = {
     val lexer   = new Lexer(name, sourceCode)
     val scanner = Scanner(lexer)
-    parseSourceFile(name)(scanner).map(sourceFile => Program(List(sourceFile)))
+    (namespace <~ eof)(scanner)
+  }
+
+  def parseStatement(name: String, sourceCode: String): ParseResult[Statement] = {
+    val lexer   = new Lexer(name, sourceCode)
+    val scanner = Scanner(lexer)
+    (statement <~ eof)(scanner)
   }
 
   //------------------------------------------ TOP-LEVEL CONSTRUCTS ----------------------------------------------------
 
-  private def parseSourceFile(name: String): Parser[SourceFile] = {
-    val fileEnd      = opt(statementDelimiter) ~ eof
-    val declarations = opt(statementDelimiter) ~> separatedSequence(declaration, statementDelimiter, fileEnd)
-    declarations map (declarations => SourceFile(name, declarations))
-  }
+  private lazy val namespace: Parser[NamespaceDeclaration] =
+    matchToken(Tokens.NAMESPACE) ~> identifier ~
+    (lbrace ~> rep(declaration <~ opt(statementDelimiter)) <~ rbrace) map {
+      case nsName ~ declarations =>
+        NamespaceDeclaration(SimpleName(nsName.lexeme), declarations.collect {
+          case fd: Declaration.FunctionDeclaration => fd
+        })
+    }
 
   //------------------------------------------ STATEMENTS --------------------------------------------------------------
 
@@ -53,17 +63,23 @@ object PclParser extends Parsers with PackratParsers {
     matchToken(Tokens.FN) ~> identifier ~ (lparen ~> repsep(parameterDeclaration, comma)) ~
     (rparen ~> colon ~> identifier <~ opt(statementDelimiter)) ~ block map {
       case name ~ parameters ~ returnType ~ body =>
-        Declaration.FunctionDeclaration(name.lexeme, List.empty, parameters, returnType.lexeme, body)
+        Declaration.FunctionDeclaration(SimpleName(name.lexeme),
+                                        List.empty,
+                                        parameters,
+                                        TypeName(returnType.lexeme),
+                                        body)
     }
 
   private lazy val parameterDeclaration: Parser[Declaration.ParameterDeclaration] =
     identifier ~ (colon ~> identifier) map {
-      case name ~ parameterType => Declaration.ParameterDeclaration(name.lexeme, parameterType.lexeme)
+      case name ~ parameterType =>
+        Declaration.ParameterDeclaration(SimpleName(name.lexeme), TypeName(parameterType.lexeme))
     }
 
   private lazy val variableDeclaration: Parser[VariableDeclaration] =
     matchToken(Tokens.VAR) ~> identifier ~ opt(colon ~> identifier) ~ (matchToken(Tokens.EQUAL) ~> expression) map {
-      case name ~ varType ~ initializer => VariableDeclaration(name.lexeme, varType.map(_.lexeme), initializer)
+      case name ~ varType ~ initializer =>
+        VariableDeclaration(SimpleName(name.lexeme), varType.map(x => TypeName(x.lexeme)), initializer)
     }
 
   //--------------------------------------- EXPRESSIONS ---------------------------------------
@@ -88,9 +104,11 @@ object PclParser extends Parsers with PackratParsers {
     *
     * @return primary expression
     */
-  private lazy val expression: Parser[Expression] = stringLiteral | nullLiteral | symbolReference
+  private lazy val expression: Parser[Expression] = stringLiteral | symbolReference
 
-  private lazy val symbolReference: Parser[SymbolReference] = identifier map (t => SymbolReference(t.lexeme))
+  private lazy val symbolReference: Parser[SymbolReference] = identifier map (
+      t => SymbolReference(SimpleName(t.lexeme))
+    )
 
   //--------------------------------------- TOKEN MATCHERS ---------------------------------------
 
@@ -98,14 +116,13 @@ object PclParser extends Parsers with PackratParsers {
       Expression.StringLiteral(token.lexeme)
     }
 
-  private lazy val nullLiteral: Parser[Expression] = matchToken(Tokens.NULL) ^^^ Expression.NullLiteral
-  private lazy val colon: Parser[Token]            = matchToken(Tokens.COLON)
-  private lazy val comma: Parser[Token]            = matchToken(Tokens.COMMA)
-  private lazy val lparen: Parser[Token]           = matchToken(Tokens.LEFT_PAREN)
-  private lazy val rparen: Parser[Token]           = matchToken(Tokens.RIGHT_PAREN)
-  private lazy val lbrace: Parser[Token]           = matchToken(Tokens.LEFT_BRACE)
-  private lazy val rbrace: Parser[Token]           = matchToken(Tokens.RIGHT_BRACE)
-  private lazy val identifier: Parser[Token]       = matchToken(Tokens.IDENTIFIER)
+  private lazy val colon: Parser[Token]      = matchToken(Tokens.COLON)
+  private lazy val comma: Parser[Token]      = matchToken(Tokens.COMMA)
+  private lazy val lparen: Parser[Token]     = matchToken(Tokens.LEFT_PAREN)
+  private lazy val rparen: Parser[Token]     = matchToken(Tokens.RIGHT_PAREN)
+  private lazy val lbrace: Parser[Token]     = matchToken(Tokens.LEFT_BRACE)
+  private lazy val rbrace: Parser[Token]     = matchToken(Tokens.RIGHT_BRACE)
+  private lazy val identifier: Parser[Token] = matchToken(Tokens.IDENTIFIER)
 
   //--------------------------------------- GENERAL PURPOSE PARSERS ---------------------------------------
 

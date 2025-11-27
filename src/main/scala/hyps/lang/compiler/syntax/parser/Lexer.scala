@@ -206,23 +206,24 @@ object Lexer {
 
   final val Keywords: Map[String, Int] =
     Map(
-      "and"     -> AND,
-      "class"   -> CLASS,
-      "else"    -> ELSE,
-      "false"   -> FALSE,
-      "for"     -> FOR,
-      "fn"      -> FN,
-      "if"      -> IF,
-      "null"    -> NULL,
-      "or"      -> OR,
-      "return"  -> RETURN,
-      "super"   -> SUPER,
-      "this"    -> THIS,
-      "true"    -> TRUE,
-      "var"     -> VAR,
-      "let"     -> LET,
-      "while"   -> WHILE,
-      "println" -> PRINTLN
+      "and"       -> AND,
+      "class"     -> CLASS,
+      "else"      -> ELSE,
+      "false"     -> FALSE,
+      "for"       -> FOR,
+      "fn"        -> FN,
+      "if"        -> IF,
+      "null"      -> NULL,
+      "or"        -> OR,
+      "return"    -> RETURN,
+      "super"     -> SUPER,
+      "this"      -> THIS,
+      "true"      -> TRUE,
+      "var"       -> VAR,
+      "let"       -> LET,
+      "while"     -> WHILE,
+      "println"   -> PRINTLN,
+      "namespace" -> NAMESPACE
     )
 
 }

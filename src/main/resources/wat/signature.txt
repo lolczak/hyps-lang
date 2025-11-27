@@ -1,0 +1,18 @@
+1. Function
+
+( func <signature> <locals> <body> )
+The absence of a (result) means the function doesn't return anything.
+
+( type <name> <signature> )
+
+( import <name> <name> <desc> )
+( export <name> <desc> )
+( table <name> <tabletype> )
+( memory <name> <memorytype> )
+( global <name> <globaltype> <init> )
+( elem <tableidx> <offset> <elem> )
+( data <memidx> <offset> <data> )
+( start <funcidx> )
+( local <name> <type> )
+( param <name> <type> )
+( result <type> )
