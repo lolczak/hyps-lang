@@ -32,7 +32,7 @@ object PclParser extends Parsers with PackratParsers {
 
   private lazy val namespace: Parser[NamespaceDeclaration] =
     matchToken(Tokens.NAMESPACE) ~> identifier ~
-    (lbrace ~> rep(declaration <~ opt(statementDelimiter)) <~ rbrace) map {
+    (lbrace ~> separatedSequence(declaration, matchToken(Tokens.NEW_LINE), opt(matchToken(Tokens.NEW_LINE)) ~ rbrace)) map {
       case nsName ~ declarations =>
         NamespaceDeclaration(SimpleName(nsName.lexeme), declarations.collect {
           case fd: Declaration.FunctionDeclaration => fd
