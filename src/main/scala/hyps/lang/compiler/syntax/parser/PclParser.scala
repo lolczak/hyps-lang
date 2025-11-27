@@ -42,7 +42,7 @@ object PclParser extends Parsers with PackratParsers {
   //------------------------------------------ STATEMENTS --------------------------------------------------------------
 
   private lazy val statement: Parser[Statement] =
-    variableDeclaration | printlnStatement
+    declaration | printlnStatement
 
   private lazy val printlnStatement: Parser[Statement.PrintlnStatement] =
     (matchToken(Tokens.PRINTLN) ~> (lparen ~> expression) <~ rparen) map Statement.PrintlnStatement
@@ -61,7 +61,7 @@ object PclParser extends Parsers with PackratParsers {
 
   private lazy val functionDeclaration: Parser[Declaration.FunctionDeclaration] =
     matchToken(Tokens.FN) ~> identifier ~ (lparen ~> repsep(parameterDeclaration, comma)) ~
-    (rparen ~> colon ~> identifier <~ opt(statementDelimiter)) ~ block map {
+    (rparen ~> colon ~> identifier <~ equal) ~ block map {
       case name ~ parameters ~ returnType ~ body =>
         Declaration.FunctionDeclaration(SimpleName(name.lexeme),
                                         List.empty,
@@ -117,6 +117,7 @@ object PclParser extends Parsers with PackratParsers {
     }
 
   private lazy val colon: Parser[Token]      = matchToken(Tokens.COLON)
+  private lazy val equal: Parser[Token]      = matchToken(Tokens.EQUAL)
   private lazy val comma: Parser[Token]      = matchToken(Tokens.COMMA)
   private lazy val lparen: Parser[Token]     = matchToken(Tokens.LEFT_PAREN)
   private lazy val rparen: Parser[Token]     = matchToken(Tokens.RIGHT_PAREN)
